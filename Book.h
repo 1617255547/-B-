@@ -34,8 +34,10 @@ typedef struct Reader {//读者类型
 typedef struct BKNode {
 	char bookname[NUM];//书名
 	char author[NUM];//作者
+	char press[NUM];
 	int now;//现存量
 	int total;//总库存量
+	int readernum;//读者数
 	Reader* reader;
 }BKNode, * Book;
 
@@ -55,7 +57,7 @@ typedef struct LNode {               //链表和链表结点类型
 
 //图书馆书管理操作接口
 int EmptyBook(BTree bt, KeyType k);//检查某本书现存量是否为空
-void InsertBook(BTree& bt, KeyType k, result r, char* bookname, char* author, int num);//采编入库
+void InsertBook(BTree& bt, KeyType k, result r, char* bookname, char* author, char* press, int num);//采编入库
 void DeleteBook(BTree& bt, KeyType k);//清楚库存
 void BorrowBook(int readerID, char* readername, result r);//借阅
 void ReturnBook(result r, int readerID);//归还
@@ -117,5 +119,5 @@ Status PrintBTree(BTree bt);								 //输出B树
 
 void PrintfBTree(BTree bt, int deep);//凹入表形式
 
-
+void Test();
 #endif 
