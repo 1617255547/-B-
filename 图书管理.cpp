@@ -486,7 +486,7 @@ void PrintfBTree(BTree bt, int deep) {
 	return;
 }
 //测试B树功能函数
-void TestBook() {
+void Test() {
 	int i = 18, j = 20;
 	KeyType k;
 	BKNode* book=NULL;
@@ -598,7 +598,7 @@ int EmptyBook(BTree bt, KeyType k) {
 	else return 1;
 }
 //采编入库
-void InsertBook(BTree& bt, KeyType k, result r, char* bookname, char* author, int num) {
+void InsertBook(BTree& bt, KeyType k, result r, char* bookname, char* author,char*press, int num) {
 	if (bt == NULL) {
 		BTree bt;
 		bt = (BTree)malloc(sizeof(BTNode));
@@ -614,7 +614,9 @@ void InsertBook(BTree& bt, KeyType k, result r, char* bookname, char* author, in
 		book->now = book->total = num;
 		strcpy_s(book->bookname, bookname);
 		strcpy_s(book->author, author);
+		strcpy_s(book->press, press);
 		book->reader = NULL;
+		book->readernum = 0;
 		InsertBTree(bt, r.i, k, r.pt, book);
 	}
 }
@@ -634,10 +636,14 @@ void BorrowBook(int readerID, char* readername, result r) {
 	reader = (Reader*)malloc(sizeof(Reader));
 	strcpy_s(reader->readername, readername);
 	reader->readerID = readerID;
-	reader->time = day;
+	int Day;
+	printf("输出借阅时间（充当时间了）");
+	scanf_s("%d", &Day);
+	reader->time = Day;
 	reader->next = p->book[i]->reader;
 	p->book[i]->reader = reader;
 	p->book[i]->now--;
+	p->book[i]->readernum++;
 	return;
 }
 //归还
@@ -662,6 +668,7 @@ void ReturnBook(result r, int readerID) {
 		reader2->next = reader1->next;
 		free(reader1);
 		p->book[i]->now++;
+		p->book[i]->readernum--;
 		printf("还书成功\n");
 	}
 	return;
@@ -696,43 +703,45 @@ void PrintfBook(BTree bt, KeyType k) {
 	}
 	else {
 		printf("|-------------------------------------------------------------------------|\n");
-		printf("|书号   书名   作者   现存量  总库存量 |\n");
+		printf("|书号   书名   作者     出版社  现存量  总库存量 |\n");
 		printf("|-------------------------------------------------------------------------|\n");
-		printf("|%d       %s     %s     %d        %d     |\n", r.pt->key[r.i], r.pt->book[r.i]->bookname, r.pt->book[r.i]->author, r.pt->book[r.i]->now, r.pt->book[r.i]->total);
-		printf("|-------------------------------------------------------------------------|\n");
+		printf("|%d       %s     %s   %s     %d        %d     |\n", r.pt->key[r.i], r.pt->book[r.i]->bookname, r.pt->book[r.i]->author, r.pt->book[r.i]->press, r.pt->book[r.i]->now, r.pt->book[r.i]->total);
+		printf("|-------------------------------------------------------------------------|\n\n\n");
 	}
 }
 //包括借阅者
 void PrintfBookAll(BTree bt, KeyType k) {
 	PrintfBook(bt, k);
 	result r = SearchBTree(bt, k);
+	int i = r.pt->book[r.i]->readernum;
 	Reader* p = r.pt->book[r.i]->reader;
-	while (p != NULL) {
+	while (i>0) {
 		int j = 1;
 		printf("|%d.借阅证号：%d, 姓名：%s, 最迟还书时间还剩：%d 天。\n", j, p->readerID, p->readername, p->time);
 		printf("|-------------------------------------------------------------------------|\n");
 		p = p->next;
 		j++;
+		i--;
 	}
 	return;
 }
-
-int main() {
+void TestBook() {
 	BTree bt;
 	KeyType k;
 	int Key[18] = { 35,16,18,70,5,50,22,60,13,17,12,45,25,42,15,90,30,7 };
 	bt = NULL;
-	int i,num,total;
-	char bookname[NUM], author[NUM], readername[NUM];
+	int i, num, total;
+	char bookname[NUM], author[NUM], readername[NUM], press[NUM];
 	memset(bookname, 0, sizeof(bookname)); // 将字符数组全部置为0
-	memset(author, 0, sizeof(author)); 
+	memset(author, 0, sizeof(author));
 	memset(readername, 0, sizeof(readername));
+	memset(press, 0, sizeof(press));
 	InitBTree(bt);
-	PrintfBTree(bt,1);
+	PrintfBTree(bt, 1);
 	printf(" 初始化完成!\n");
 	result r;
 	for (int j = 0; j < 18; j++) {
-		 char s[] = "qwe";
+		char s[] = "qwe";
 		k = Key[j];
 		r = SearchBTree(bt, k);
 		if (r.tag == 1) {
@@ -748,7 +757,7 @@ int main() {
 			//scanf_s("%s%s", bookname, NUM, author, NUM);
 			//printf("请输入需要添加此书本的数量\n");
 			//scanf_s("%d", &num);
-			InsertBook(bt, k, r, s, s, k);
+			InsertBook(bt, k, r, s, s, s, k);
 		}
 		printf("添加完成!\n");
 		PrintfBook(bt, k);
@@ -765,37 +774,37 @@ int main() {
 		printf(" |****************************************************|\n");
 		printf(" |                                                    |\n");
 		printf(" |****************************************************|\n");
-		printf(" |请输入操作的对应编号：                              |\n");
-		printf(" |----------------------------------------------------|\n");
-		int i;
-		scanf_s("%d", &i);
+		printf(" |请输入操作的对应编号：___\b\b");
+		int i; scanf_s("%d", &i);
+		printf(" |----------------------------------------------------|\n\n\n\n\n");
 		switch (i)
 		{
 		case 1:
-			printf("请输入书的编号\n");
+			printf("\n请输入书的编号___\b\b");
 			scanf_s("%d", &k);
-			r=SearchBTree(bt, k);
+			r = SearchBTree(bt, k);
 			if (r.tag == 1) {
 				printf("此书本已存在\n");
 				PrintfBook(bt, k);
-				printf("请输入需要添加此书本的数量\n");
+				printf("\n请输入需要添加此书本的数量___\b\b\b");
 				scanf_s("%d", &num);
 				AddBook(bt, k, num);
 			}
 			else {
-				printf("请按顺序输入此书的书名、作者（用空格隔开）\n");
-				scanf_s("%s%s", bookname, NUM, author, NUM);
-				printf("请输入需要添加此书本的数量\n");
+				printf("\n请按顺序输入此书的书名、作者、出版社（用空格隔开）_____\b\b\b\b");
+				scanf_s("%s%s%s", bookname, NUM, author, NUM, press, NUM);
+				printf("\n请输入需要添加此书本的数量___\b\b");
 				scanf_s("%d", &num);
-				InsertBook(bt, k, r, bookname, author, num);
+				InsertBook(bt, k, r, bookname, author, press, num);
 			}
 			printf("添加完成!\n");
 			PrintfBook(bt, k);
 			break;
 		case 2:
-			printf("请输入书的编号\n");
+			PrintfBTree(bt, 1);
+			printf("\n请输入书的编号__\b\b");
 			scanf_s("%d", &k);
-			r=SearchBTree(bt, k);
+			r = SearchBTree(bt, k);
 			if (r.tag == 0)
 				printf("此书本不存在图库中\n");
 			else {
@@ -810,42 +819,45 @@ int main() {
 				else
 					printf("已取消\n");
 			}
+			PrintfBTree(bt, 1);
 			break;
 		case 3:
-			printf("请输入书的编号\n");
+			PrintfBTree(bt, 1);
+			printf("\n请输入书的编号__\b\b");
 			scanf_s("%d", &k);
-			r=SearchBTree(bt, k);
+			r = SearchBTree(bt, k);
 			PrintfBook(bt, k);
-			if (EmptyBook(r.pt, r.i)==1)
-					printf("此书本现库存不足，暂时无法借阅！\n");
+			if (EmptyBook(r.pt, k) == 1)
+				printf("此书本现库存不足，暂时无法借阅！\n");
 			else {
-					printf("请确认是否借书：\n");
-					printf("1：确认   0：取消  \n");
-					scanf_s("%d", &i);
-					if (i == 1) {
-						printf("请输入（学号）借阅证号：\n");
-						int readernumber;
-						scanf_s("%d", &readernumber);
-						printf("请输入姓名：\n");
-						scanf_s("%s", readername, sizeof(readername));
-						BorrowBook(readernumber, readername,r);
-						PrintfBookAll(bt, k);
-						printf("借书成功!\n");
-					}
-					else
-						printf("已取消\n");
+				printf("请确认是否借书：\n");
+				printf("1：确认   0：取消  \n");
+				scanf_s("%d", &i);
+				if (i == 1) {
+					printf("\n请输入（学号）借阅证号：______\b\b\b\b\b");
+					int readernumber;
+					scanf_s("%d", &readernumber);
+					printf("\n请输入姓名：______\b\b\b\b");
+					scanf_s("%s", readername, sizeof(readername));
+					BorrowBook(readernumber, readername, r);
+					PrintfBookAll(bt, k);
+					printf("借书成功!\n");
 				}
+				else
+					printf("已取消\n");
+			}
 			break;
 		case 4:
-			printf("请输入书的编号\n");
+			PrintfBTree(bt, 1);
+			printf("\n请输入书的编号__\b\b\b");
 			scanf_s("%d", &k);
-			r=SearchBTree(bt, k);
+			r = SearchBTree(bt, k);
 			PrintfBook(bt, k);
 			printf("请确认是否还书：\n");
 			printf("1：确认   0：取消  \n");
 			scanf_s("%d", &i);
 			if (i == 1) {
-				printf("请输入借阅证号：\n");
+				printf("\n请输入借阅证号：_____\b\b\b\b");
 				int readernumber;
 				scanf_s("%d", &readernumber);
 				ReturnBook(r, readernumber);
@@ -853,13 +865,14 @@ int main() {
 			else printf("已取消\n");
 			break;
 		case 5:
-			printf("请输入书的编号\n");
+			PrintfBTree(bt, 1);
+			printf("\n请输入书的编号___\b\b");
 			scanf_s("%d", &k);
-			r=SearchBTree(bt, k);
+			r = SearchBTree(bt, k);
 			PrintfBookAll(bt, k);
 			break;
 		case 6:
-			PrintBTree(bt);
+			PrintfBTree(bt,1);
 			break;
 		case 0:
 			exit(-1);
@@ -869,6 +882,9 @@ int main() {
 			break;
 		}
 	}
+}
+int main() {
+	TestBook();
 	return 0;
 }
 
