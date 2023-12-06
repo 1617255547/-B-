@@ -2,12 +2,13 @@
 #ifndef _BOOK_H//避免重复定义，对于本次接口可有可无，主要用于多个源文件包含头文件的情况，语法为如果未定义则运行以下操作
 #define _BOOK_H
 
-const int m = 3;	//定义B树阶数，可以任意更换
+const int m = 5;	//定义B树阶数，可以任意更换
 const int max = m - 1;  //节点最大关键字数
 const int min = (m - 1) / 2;//节点最小关键字数
 typedef int KeyType;      //设定关键字类型
 const int inf = -10000;		//补数无效值
 const int NUM = 20;         //名字最大字符数
+const int day = 50;//定义借阅时间
 //需要的抽象数据类型
 typedef struct BTNode {
 	int Keynum;				//结点当前的关键字数
@@ -57,9 +58,10 @@ int EmptyBook(BTree bt, KeyType k);//检查某本书现存量是否为空
 void InsertBook(BTree& bt, KeyType k, result r, char* bookname, char* author, int num);//采编入库
 void DeleteBook(BTree& bt, KeyType k);//清楚库存
 void BorrowBook(int readerID, char* readername, result r);//借阅
-void ReturnBook(result r, int readerID, char* readername);//归还
+void ReturnBook(result r, int readerID);//归还
 void AddBook(BTree& bt, KeyType k, int number);//增加某本书数量
-void PrintfBook(BTree bt, KeyType k);//输出书本信息
+void PrintfBook(BTree bt, KeyType k);//输出书本信息（不包括借阅者）
+void PrintfBookAll(BTree bt, KeyType k);//包括借阅者
 void TestBook();//测试函数
 //声明的函数体
 Status InitBTree(BTree& bt);						//初始化B树
@@ -85,7 +87,7 @@ void MoveRight(BTNode* p, int i);							 //将双亲结点p的最后一个关键
 
 void MoveLeft(BTNode* p, int i);							 //将双亲结点p的第一个关键字移入左结点aq，将结点q的第一个关键字移入p
 
-void Combine(BTNode* p, int i);							  //将双亲p、右结点q合并入左结点aq，并调整p剩余关键字的位置
+void Combine(BTNode* &p, int i);							  //将双亲p、右结点q合并入左结点aq，并调整p剩余关键字的位置
 
 void Restore(BTNode* p, int i);						     //删除p中第i个关键字后，调整B树
 
@@ -115,6 +117,5 @@ Status PrintBTree(BTree bt);								 //输出B树
 
 void PrintfBTree(BTree bt, int deep);//凹入表形式
 
-void Test();											 //测试B树功能函数
 
 #endif 
