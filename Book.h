@@ -1,4 +1,5 @@
 #pragma once
+#include <stdio.h>
 #ifndef _BOOK_H//避免重复定义，对于本次接口可有可无，主要用于多个源文件包含头文件的情况，语法为如果未定义则运行以下操作
 #define _BOOK_H
 
@@ -67,6 +68,7 @@ void PrintfBookAll(BTree bt, KeyType k);//包括借阅者
 void TestBook();//测试函数
 void ReaderDaysort(BTNode* p, int i);//按借阅者时间排序存放位置
 void PrintfAuthor(BTNode* p, char* author);//通过作者名字找书本并输出信息
+void PrintfFile(BTree bt, FILE* logFile);//写入log
 //声明的函数体
 Status InitBTree(BTree& bt);						//初始化B树
 
