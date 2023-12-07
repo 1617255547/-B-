@@ -778,6 +778,26 @@ void PrintfAuthor(BTNode* p, char* author) {
 	PrintfAuthor(p->ptr[i - 1], author);
 	return;
 }
+//写入log
+void PrintfFile(BTree bt, FILE* logFile) {
+	// 用户与程序的对话
+	if (bt == NULL)return;
+	int i = 1;
+	for (; i <= bt->Keynum; i++) {
+		PrintfFile(bt->ptr[i-1], logFile);
+		fprintf(logFile, "\n");
+		fprintf(logFile, "书号: %d 书名: %s 作者: %s 出版社: %s 现存量: %d 总库存量: %d \n",\
+			bt->key[i],bt->book[i]->bookname, bt->book[i]->author, \
+			bt->book[i]->press, bt->book[i]->now, bt->book[i]->total);
+		Reader* r = bt->book[i]->reader;
+		while (r != NULL) {
+			fprintf(logFile, "%d. 借阅证号：%d  姓名： %s  最迟还书时间还剩：%d 天。\n", i, r->readerID, r->readername, r->time);
+			r = r->next;
+		}
+	}
+	PrintfFile(bt->ptr[i - 1], logFile);
+	return;
+}
 void TestBook() {
 	BTree bt;
 	KeyType k;
@@ -815,7 +835,8 @@ void TestBook() {
 		printf("添加完成!\n");
 		PrintfBook(bt, k);
 	}
-	while (1)
+	int flag = 1;
+	while (flag)
 	{
 		printf(" |***********************************************************|\n");
 		printf(" |*****************|  图书管理系统  |************************|\n");
@@ -940,13 +961,26 @@ void TestBook() {
 			PrintfAuthor(bt, author);
 			break;
 		case 0:
-			exit(-1);
+			flag=0;
 			break;
 		default:
 			printf("输入错误，请重新输入!\n");
 			break;
 		}
 	}
+	if (bt == NULL)return;
+	FILE* logFile;
+	fopen_s(&logFile, "D:\\图书信息管理系统\\log.txt", "w"); // 打开日志文件，以追加模式写入
+
+	if (logFile == NULL) {
+		printf("无法打开日志文件\n");
+		return;
+	}
+
+	PrintfFile(bt,logFile);
+	fclose(logFile); // 关闭日志文件
+	printf("\n信息已录入log.txt，前往该地址：<D:\\图书信息管理系统\\log.txt> 查看\n");
+	return;
 }
 int main() {
 	TestBook();
