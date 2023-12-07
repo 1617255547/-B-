@@ -634,9 +634,9 @@ void BorrowBook(int readerID, char* readername, result r) {
 	int i = r.i;
 	Reader* reader;
 	reader = (Reader*)malloc(sizeof(Reader));
-	strcpy_s(reader->readername, readername);
+	strcpy_s(reader->readername, readername);//录入信息
 	reader->readerID = readerID;
-	int Day;
+	int Day;//归还时间
 	printf("输出借阅时间（充当时间了）");
 	scanf_s("%d", &Day);
 	reader->time = Day;
@@ -644,6 +644,8 @@ void BorrowBook(int readerID, char* readername, result r) {
 	p->book[i]->reader = reader;
 	p->book[i]->now--;
 	p->book[i]->readernum++;
+	if(p->book[i]->readernum>1)
+		ReaderDaysort(p, i);//按时间排序录入
 	return;
 }
 //归还
@@ -725,6 +727,57 @@ void PrintfBookAll(BTree bt, KeyType k) {
 	}
 	return;
 }
+//按借阅者时间排序存放位置
+void ReaderDaysort(BTNode* p, int i) {
+	if (p->book[i]->reader == NULL)return;
+	int x, y, z;
+	Reader* q = NULL, * aq1, * aq2, * b=NULL;
+	int Day;
+	for (x = 1; x <= p->book[i]->readernum; x++) {
+		aq1 = p->book[i]->reader;//从第一个开始
+		Day = aq1->time;
+		z = 1;
+		for (y = 1; y <= p->book[i]->readernum - x; y++) {//找到最小
+			aq1 = aq1->next; 
+			if (aq1->time < Day) {
+				z = y+1;
+				Day = aq1->time;
+			}
+		}
+			aq1 = p->book[i]->reader;
+			aq2 = aq1;
+		for (y = 1; y < z; y++) {//找最小结点以及前驱
+			aq1 = aq2;
+			aq2 = aq2->next;
+		}
+		if (q == NULL) {//如果第一次直接赋值
+			q = aq2;
+			b = q;
+		}
+		else {
+			q->next = aq2;
+			q = q->next;
+		}
+		if (z == 1)
+			p->book[i]->reader = aq2->next;//删掉
+		else 
+			aq1->next = aq2->next;
+	}
+	p->book[i]->reader = b;//排好序的队列头
+	return;
+}
+//通过作者名字找书本并输出信息
+void PrintfAuthor(BTNode* p, char* author) {
+	if (p == NULL)return;
+	int i;
+	for (i = 1; i <= p->Keynum; i++) {
+		if (strcmp(author, p->book[i]->author) == 0)//符合条件即输出
+			PrintfBook(p, p->key[i]);
+		PrintfAuthor(p->ptr[i-1], author);//递归遍历
+	}
+	PrintfAuthor(p->ptr[i - 1], author);
+	return;
+}
 void TestBook() {
 	BTree bt;
 	KeyType k;
@@ -764,16 +817,16 @@ void TestBook() {
 	}
 	while (1)
 	{
-		printf(" |****************************************************|\n");
-		printf(" |*****************|  图书管理系统  |*****************|\n");
-		printf(" |****************************************************|\n");
-		printf(" |     1：采编入库                 2：清除库存        |\n");
-		printf(" |     3：借阅图书                 4：归还图书        |\n");
-		printf(" |     5：查看某种图书信息         6：输出B树的状态   |\n");
-		printf(" |     0：退出                                        |\n");
-		printf(" |****************************************************|\n");
-		printf(" |                                                    |\n");
-		printf(" |****************************************************|\n");
+		printf(" |***********************************************************|\n");
+		printf(" |*****************|  图书管理系统  |************************|\n");
+		printf(" |***********************************************************|\n");
+		printf(" |     1：采编入库                 2：清除库存               |\n");
+		printf(" |     3：借阅图书                 4：归还图书               |\n");
+		printf(" |     5：查看某种图书信息         6：查看某种图书借阅者信息 |\n");
+		printf(" |     7：输出B树的状态            8：查看某作者所有在库著作 |\n");
+		printf(" |     0：退出                                               |\n");
+		printf(" |***********************************************************|\n");
+		printf(" |***********************************************************|\n");
 		printf(" |请输入操作的对应编号：___\b\b");
 		int i; scanf_s("%d", &i);
 		printf(" |----------------------------------------------------|\n\n\n\n\n");
@@ -834,7 +887,7 @@ void TestBook() {
 				printf("1：确认   0：取消  \n");
 				scanf_s("%d", &i);
 				if (i == 1) {
-					printf("\n请输入（学号）借阅证号：______\b\b\b\b\b");
+					printf("\n请输入（学号）借阅证号：______\b\b\b");
 					int readernumber;
 					scanf_s("%d", &readernumber);
 					printf("\n请输入姓名：______\b\b\b\b");
@@ -869,10 +922,22 @@ void TestBook() {
 			printf("\n请输入书的编号___\b\b");
 			scanf_s("%d", &k);
 			r = SearchBTree(bt, k);
-			PrintfBookAll(bt, k);
+			PrintfBook(bt, k);
 			break;
 		case 6:
+			PrintfBTree(bt, 1);
+			printf("\n请输入书的编号____\b\b");
+			scanf_s("%d", &k);
+			r = SearchBTree(bt, k);
+			PrintfBookAll(bt, k);
+			break;
+		case 7:
 			PrintfBTree(bt,1);
+			break;
+		case 8:
+			printf("\n请输入作者名______\b\b\b\b");
+			scanf_s("%s",author, NUM);
+			PrintfAuthor(bt, author);
 			break;
 		case 0:
 			exit(-1);
