@@ -65,6 +65,8 @@ void AddBook(BTree& bt, KeyType k, int number);//增加某本书数量
 void PrintfBook(BTree bt, KeyType k);//输出书本信息（不包括借阅者）
 void PrintfBookAll(BTree bt, KeyType k);//包括借阅者
 void TestBook();//测试函数
+void ReaderDaysort(BTNode* p, int i);//按借阅者时间排序存放位置
+void PrintfAuthor(BTNode* p, char* author);//通过作者名字找书本并输出信息
 //声明的函数体
 Status InitBTree(BTree& bt);						//初始化B树
 
