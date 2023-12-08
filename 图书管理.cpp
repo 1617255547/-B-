@@ -632,7 +632,7 @@ void DeleteBook(BTree& bt, KeyType k) {
 	BTreeDelete(bt, k);
 }
 //借阅
-void BorrowBook(int readerID, char* readername, result r) {
+void BorrowBook(long readerID, char* readername, result r) {
 	if (r.tag == 0) {
 		printf("库内没有此书，无法借阅\n");
 		return;
@@ -656,7 +656,7 @@ void BorrowBook(int readerID, char* readername, result r) {
 	return;
 }
 //归还
-void ReturnBook(result r, int readerID) {
+void ReturnBook(result r, long readerID) {
 	if (r.tag == 0) {
 		printf("该书不存在于该图库，请确认输入书号是否有误\n");
 		return;
@@ -916,8 +916,8 @@ void TestBook() {
 				scanf_s("%d", &i);
 				if (i == 1) {
 					printf("\n请输入（学号）借阅证号：______\b\b\b");
-					int readernumber;
-					scanf_s("%d", &readernumber);
+					long readernumber;
+					scanf_s("%ld", &readernumber);
 					printf("\n请输入姓名：______\b\b\b\b");
 					scanf_s("%s", readername, sizeof(readername));
 					BorrowBook(readernumber, readername, r);
@@ -939,8 +939,8 @@ void TestBook() {
 			scanf_s("%d", &i);
 			if (i == 1) {
 				printf("\n请输入借阅证号：_____\b\b\b\b");
-				int readernumber;
-				scanf_s("%d", &readernumber);
+				long readernumber;
+				scanf_s("%ld", &readernumber);
 				ReturnBook(r, readernumber);
 			}
 			else printf("已取消\n");
@@ -990,6 +990,7 @@ void TestBook() {
 	return;
 }
 int main() {
+	printf("班级：人工智能（1）班\n学号：3122005004\n姓名：陆锦淘\n");
 	TestBook();
 	return 0;
 }
