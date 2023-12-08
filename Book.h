@@ -26,7 +26,7 @@ typedef struct {//B树的查找结果类型
 }result;
 
 typedef struct Reader {//读者类型
-	int readerID;//学号
+	long readerID;//学号
 	char readername[NUM];//名字
 	int time;//归还时间
 	struct Reader* next;//链式存储下一位借阅者
@@ -60,8 +60,8 @@ typedef struct LNode {               //链表和链表结点类型
 int EmptyBook(BTree bt, KeyType k);//检查某本书现存量是否为空
 void InsertBook(BTree& bt, KeyType k, result r, char* bookname, char* author, char* press, int num);//采编入库
 void DeleteBook(BTree& bt, KeyType k);//清楚库存
-void BorrowBook(int readerID, char* readername, result r);//借阅
-void ReturnBook(result r, int readerID);//归还
+void BorrowBook(long readerID, char* readername, result r);//借阅
+void ReturnBook(result r, long readerID);//归还
 void AddBook(BTree& bt, KeyType k, int number);//增加某本书数量
 void PrintfBook(BTree bt, KeyType k);//输出书本信息（不包括借阅者）
 void PrintfBookAll(BTree bt, KeyType k);//包括借阅者
