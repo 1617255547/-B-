@@ -214,6 +214,8 @@ void MoveRight(BTNode* p, int i) {
 	p->key[i] = aq->key[aq->Keynum]; /*将左结点aq最后一个关键字移入双亲结点p*/
 	p->book[i] = aq->book[aq->Keynum];
 	q->ptr[0] = aq->ptr[aq->Keynum];/*最后一个孩子指针给右结点开始*/
+	if (q->ptr[0] != NULL)
+		q->ptr[0]->parent = q;
 	aq->Keynum--;
 	q->Keynum++;
 	return;
@@ -230,6 +232,8 @@ void MoveLeft(BTNode* p, int i) {
 	aq->key[aq->Keynum] = p->key[i];/*将双亲结点p的第一个关键字移入左结点aq*/
 	aq->book[aq->Keynum] = p->book[i];
 	aq->ptr[aq->Keynum] = q->ptr[0];/*右结点q的第一个孩子放到左结点的最后一个孩子*/
+	if (aq->ptr[aq->Keynum] != NULL)
+		aq->ptr[aq->Keynum]->parent = aq;
 	p->key[i] = q->key[1];//将q第一个放到p
 	p->book[i] = q->book[1];
 	q->ptr[0] = q->ptr[1];
@@ -249,16 +253,19 @@ void Combine(BTNode* &p, int i) {
 	aq->key[num] = p->key[i];//先把p移入
 	aq->book[num] = p->book[i];
 	aq->ptr[num] = q->ptr[0];
+	if (aq->ptr[num] != NULL)
+		aq->ptr[num]->parent = aq;
 	for (int j = 1; j <= q->Keynum; j++) {//再把右结点全部移入
 		num++;
 		aq->key[num] = q->key[j];
 		aq->book[num] = q->book[j];
 		aq->ptr[num] = q->ptr[j];
+		if (aq->ptr[num] != NULL)
+			aq->ptr[num]->parent = aq;
 	}
 	aq->Keynum = num;
 	Remove(p, i);//删掉p的第i个key
 	free(q);//释放空间
-	q = NULL;
 	if (p->parent != NULL && p->Keynum < min)//检查自身关键字数目是否合规
 		Restore(p, i);
 	return;
@@ -273,12 +280,8 @@ void Restore(BTNode* p, int i) {//本是p结点关键字不符合要求
 	if (p->parent == NULL)return;
 	int j = 0;
 	BTree q = p->parent;//先找其父母
-	while (q->ptr[j] != p && j <= q->Keynum)
+	while (q->ptr[j] != p )
 		j++;//找出p是q的第几个孩子
-	if (j > q->Keynum) {
-		printf("saccaesavaevaevavavavavvawvav");
-		return;
-	}
 	if (j == 0) {/*如果是第一个，则先右借，不够则根节点关键字和右孩子关键字合并到左孩子*/
 		if (q->ptr[1]->Keynum > min)
 			MoveLeft(q, 1);
@@ -306,18 +309,22 @@ void BTNodeDelete(BTNode* p, KeyType k) {
 	}
 	int i;
 	result r;
-	BTree q;
+	BTree q,check=NULL;//检查是否产生悬空指针
 	r = SearchBTree(p, k);//在树p中查找k
 	if (r.tag) {
 		q = r.pt;
 		i = r.i;
-		if (q->ptr[i]) {/*非叶子结点删除则在右子树选择最小值替代，然后转化为叶子结点删除*/
+		if (q->parent != NULL)
+			check = q->parent;
+		if (q->ptr[i-1]) {/*非叶子结点删除则在右子树选择最小值替代，然后转化为叶子结点删除*/
 			Successor(q, i);
 			BTNodeDelete(q->ptr[i], q->key[i]);
 			
 		}
 		else Remove(q, i);//叶子结点先删
-		if (q->parent != NULL && q->Keynum < min) {//关键字太少则调整
+		if (q->parent == NULL || q->parent != check)/*避免悬空指针，调整是自下而上，可以直接跳出*/
+			return;
+		if (q->Keynum < min) {//关键字太少则调整
 			Restore(q, i);
 		}
 	}
@@ -637,7 +644,7 @@ void BorrowBook(int readerID, char* readername, result r) {
 	strcpy_s(reader->readername, readername);//录入信息
 	reader->readerID = readerID;
 	int Day;//归还时间
-	printf("输出借阅时间（充当时间了）");
+	printf("输入借阅的时间（充当时间了）");
 	scanf_s("%d", &Day);
 	reader->time = Day;
 	reader->next = p->book[i]->reader;
